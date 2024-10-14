@@ -14,18 +14,29 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+    
+    - name: Clear npm cache
+      run: npm cache clean --force
+
     - name: Install dependencies
       run: npm install
-    - run: npm run build --if-present
-    - run: npm test
+
+    - name: Build the application
+      run: npm run build --if-present
+
+    - name: Run tests
+      run: npm test
+    
     - name: Stop previous PM2 process
       run: |
         pm2 stop all || true
         pm2 delete all || true
+    
     - name: Start the server using PM2
       run: pm2 start npm --name "testapp" -- run start
